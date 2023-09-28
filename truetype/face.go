@@ -66,6 +66,8 @@ type Options struct {
 	//
 	// A zero value means to use 1 sub-pixel location.
 	SubPixelsY int
+
+	UseNonZeroWinding bool
 }
 
 func (o *Options) size() float64 {
@@ -152,6 +154,10 @@ func subPixels(q int) (value uint32, bias, mask fixed.Int26_6) {
 	return uint32(q), 32 / fixed.Int26_6(q), -64 / fixed.Int26_6(q)
 }
 
+func (o *Options) useNonZeroWinding() bool {
+	return o.UseNonZeroWinding
+}
+
 // glyphCacheEntry caches the arguments and return values of rasterize.
 type glyphCacheEntry struct {
 	key glyphCacheKey
@@ -185,6 +191,7 @@ func NewFace(f *Font, opts *Options) font.Face {
 	}
 	a.subPixelX, a.subPixelBiasX, a.subPixelMaskX = opts.subPixelsX()
 	a.subPixelY, a.subPixelBiasY, a.subPixelMaskY = opts.subPixelsY()
+	a.r.UseNonZeroWinding = opts.useNonZeroWinding()
 
 	// Fill the cache with invalid entries. Valid glyph cache entries have fx
 	// and fy in the range [0, 64). Valid index cache entries have rune >= 0.
